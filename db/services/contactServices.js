@@ -1,7 +1,7 @@
 const Contact = require("../models/contactModel");
 
-const listContacts = async (data) => {
-  const contacts = await Contact.find(data).populate("owner", "email");
+const listContacts = async (query) => {
+  const contacts = await Contact.find(query).populate("owner", "email");
   return contacts;
 };
 const getContactById = async (id) => {
