@@ -10,7 +10,8 @@ const {
 } = require("../db/services/contactServices");
 
 const getAllContacts = async (req, res) => {
-  const allContacts = await listContacts();
+  const { _id: owner } = req.user;
+  const allContacts = await listContacts({ owner });
   res.status(200).json(allContacts);
 };
 
@@ -24,7 +25,8 @@ const getById = async (req, res) => {
 };
 
 const addContact = async (req, res) => {
-  const newContact = await createContact(req.body);
+  const { _id: owner } = req.user;
+  const newContact = await createContact({ ...req.body, owner });
   res.status(201).json(newContact);
 };
 
