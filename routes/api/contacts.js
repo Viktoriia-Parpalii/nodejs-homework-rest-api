@@ -36,6 +36,7 @@ router.put(
 
 router.patch(
   "/:id/favorite",
+  authenticate,
   isValidId,
   isEmpty.isEmptyFavorite,
   validateBody(updateFavoriteSchema),
