@@ -1,6 +1,13 @@
-const { register, login, logout } = require("../../controllers/auth");
-const { getCurrent } = require("../../db/services/authServices");
-const { validateBody, authenticate } = require("../../middlewares");
+const {
+  register,
+  login,
+  logout,
+  getCurrent,
+  updateAvatar,
+} = require("../../controllers/auth");
+
+const { validateBody, authenticate, upload } = require("../../middlewares");
+
 const {
   registerJoiSchema,
   loginJoiSchema,
@@ -13,5 +20,12 @@ router.post("/register", validateBody(registerJoiSchema), register);
 router.post("/login", validateBody(loginJoiSchema), login);
 router.post("/logout", authenticate, logout);
 router.get("/current", authenticate, getCurrent);
+
+router.patch(
+  "/avatars",
+  authenticate,
+  upload.single("avatarURL"),
+  updateAvatar
+);
 
 module.exports = router;

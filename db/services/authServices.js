@@ -1,16 +1,34 @@
-const User = require("../models/userModel");
-const bcrypt = require("bcrypt");
 const { SEKRET_KEY } = process.env;
+
+const Jimp = require("jimp");
+const path = require("path");
+const fs = require("fs/promises");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
+
+const User = require("../models/userModel");
 const { httpError } = require("../../helpers");
+
+const avatarsDir = path.join(__dirname, "../", "../", "public", "avatars");
 
 const createUser = async (body) => {
   const { email, password } = body;
   const user = await User.findOne({ email });
-  if (user) throw httpError(409, "Email in use");
+  if (user) {
+    throw httpError(409, "Email in use");
+  }
+
+  const avatarURL = gravatar.url(email);
 
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ ...body, password: hashPassword });
+
+  const newUser = await User.create({
+    ...body,
+    password: hashPassword,
+    avatarURL,
+  });
+
   return newUser;
 };
 
@@ -40,15 +58,29 @@ const logoutUser = async (user) => {
   await User.findByIdAndUpdate(_id, { token: "" });
 };
 
-const getCurrent = async (req, res) => {
-  const { email, subscription } = req.user;
+const changeAvatar = async (file, user) => {
+  if (!file) {
+    throw httpError(400, "File upload error");
+  }
+  const { _id } = user;
+  const { path: tempUpload, originalname } = file;
+  const fileName = `${_id}_${originalname}`;
 
-  res.json({ email, subscription });
+  const resultUpload = path.join(avatarsDir, fileName);
+  await fs.rename(tempUpload, resultUpload);
+
+  const image = await Jimp.read(resultUpload);
+  await image.contain(250, 250);
+  await image.writeAsync(resultUpload);
+
+  const avatarURL = path.join("avatars", fileName);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+  return avatarURL;
 };
 
 module.exports = {
   createUser,
   loginUser,
   logoutUser,
-  getCurrent,
+  changeAvatar,
 };
