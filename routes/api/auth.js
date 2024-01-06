@@ -4,6 +4,7 @@ const {
   logout,
   getCurrent,
   updateAvatar,
+  updateSunscription,
 } = require("../../controllers/auth");
 
 const { validateBody, authenticate, upload } = require("../../middlewares");
@@ -20,6 +21,7 @@ router.post("/register", validateBody(registerJoiSchema), register);
 router.post("/login", validateBody(loginJoiSchema), login);
 router.post("/logout", authenticate, logout);
 router.get("/current", authenticate, getCurrent);
+router.patch("/", authenticate, updateSunscription);
 
 router.patch(
   "/avatars",

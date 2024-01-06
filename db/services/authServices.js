@@ -10,6 +10,11 @@ const gravatar = require("gravatar");
 const User = require("../models/userModel");
 const { httpError } = require("../../helpers");
 
+const SubscriptionEnum = {
+  Starter: "starter",
+  Pro: "pro",
+  Business: "business",
+};
 const avatarsDir = path.join(__dirname, "../", "../", "public", "avatars");
 
 const createUser = async (body) => {
@@ -58,6 +63,22 @@ const logoutUser = async (user) => {
   await User.findByIdAndUpdate(_id, { token: "" });
 };
 
+const changeSunscription = async (id, subscription) => {
+  if (
+    subscription !== SubscriptionEnum.Starter &&
+    subscription !== SubscriptionEnum.Pro &&
+    subscription !== SubscriptionEnum.Business
+  ) {
+    throw httpError(400, "Invalid subscription");
+  }
+  const updatedUser = await User.findByIdAndUpdate(
+    id,
+    { subscription },
+    { new: true }
+  );
+  return updatedUser;
+};
+
 const changeAvatar = async (file, user) => {
   if (!file) {
     throw httpError(400, "File upload error");
@@ -82,5 +103,6 @@ module.exports = {
   createUser,
   loginUser,
   logoutUser,
+  changeSunscription,
   changeAvatar,
 };

@@ -11,8 +11,27 @@ const {
 
 const getAllContacts = async (req, res) => {
   const { _id: owner } = req.user;
-  const allContacts = await listContacts({ owner });
-  res.status(200).json(allContacts);
+  const { page = 1, limit = 10, favorite } = req.query;
+  const skip = (page - 1) * limit;
+  const query = { owner, ...(favorite ? { favorite: true } : {}) };
+  const allContacts = await listContacts(query, { skip, limit });
+
+  const contactsLength = allContacts.length;
+  const newResult =
+    contactsLength === 0
+      ? {
+          totalContacts: contactsLength,
+          contacts: [],
+          page: 0,
+          limit: 0,
+        }
+      : {
+          totalContacts: contactsLength,
+          contacts: allContacts,
+          page,
+          limit,
+        };
+  res.status(200).json(newResult);
 };
 
 const getById = async (req, res) => {

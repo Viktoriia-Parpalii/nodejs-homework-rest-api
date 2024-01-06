@@ -3,6 +3,7 @@ const {
   loginUser,
   logoutUser,
   changeAvatar,
+  changeSunscription,
 } = require("../db/services/authServices");
 
 const { tryCatch } = require("../helpers");
@@ -37,6 +38,14 @@ const getCurrent = async (req, res) => {
   res.json({ email, subscription });
 };
 
+const updateSunscription = async (req, res) => {
+  const { _id } = req.user;
+  const { subscription } = req.body;
+  const updatedUser = await changeSunscription(_id, subscription);
+
+  res.status(200).json(updatedUser);
+};
+
 const updateAvatar = async (req, res) => {
   const avatarURL = await changeAvatar(req.file, req.user);
 
@@ -48,5 +57,6 @@ module.exports = {
   login: tryCatch(login),
   logout: tryCatch(logout),
   getCurrent: tryCatch(getCurrent),
+  updateSunscription: tryCatch(updateSunscription),
   updateAvatar: tryCatch(updateAvatar),
 };
