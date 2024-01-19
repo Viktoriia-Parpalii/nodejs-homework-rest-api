@@ -4,6 +4,8 @@ const {
   logoutUser,
   changeAvatar,
   changeSunscription,
+  verifyEmailService,
+  resendVerifyEmailService,
 } = require("../db/services/authServices");
 
 const { tryCatch } = require("../helpers");
@@ -16,6 +18,19 @@ const register = async (req, res) => {
       subscription: "starter",
     },
   });
+};
+const verifyEmail = async (req, res) => {
+  const { verificationToken } = req.params;
+
+  await verifyEmailService(verificationToken);
+  res.status(200).json({
+    message: "Verification successful",
+  });
+};
+const resendVerifyEmail = async (req, res) => {
+  const { email } = req.body;
+  await resendVerifyEmailService(email);
+  res.status(200).json({ message: "Verification email sent" });
 };
 const login = async (req, res) => {
   const userUpdated = await loginUser(req.body);
@@ -59,4 +74,6 @@ module.exports = {
   getCurrent: tryCatch(getCurrent),
   updateSunscription: tryCatch(updateSunscription),
   updateAvatar: tryCatch(updateAvatar),
+  verifyEmail: tryCatch(verifyEmail),
+  resendVerifyEmail: tryCatch(resendVerifyEmail),
 };
